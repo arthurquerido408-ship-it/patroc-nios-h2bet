@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H2bet — Performance de Entregas | Dez/25 – Mar/26</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   FOUNDATIONS
+   ══════════════════════════════════════ */
+:root {
+  --bg: #0E0E10;
+  --surface: #18181C;
+  --surface-2: #1F1F24;
+  --surface-3: #28282E;
+  --border: #2E2E36;
+  --border-light: #23232A;
+  --text-1: #F4F3F0;
+  --text-2: #B8B5B0;
+  --text-3: #908D86;
+  --text-4: #686560;
+  --accent: #A78BFA;
+  --accent-dim: rgba(167,139,250,0.12);
+  --green: #34D399;
+  --green-dim: rgba(52,211,153,0.12);
+  --green-med: rgba(52,211,153,0.25);
+  --yellow: #FBBF24;
+  --yellow-dim: rgba(251,191,36,0.12);
+  --yellow-med: rgba(251,191,36,0.25);
+  --red: #F87171;
+  --red-dim: rgba(248,113,113,0.12);
+  --red-med: rgba(248,113,113,0.25);
+  --over: #A78BFA;
+  --over-dim: rgba(167,139,250,0.10);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════
+   SLIDE ENGINE
+   ══════════════════════════════════════ */
+.deck {
+  width:100%; height:100%;
+  position:relative;
+}
+.slide {
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding: 60px 80px;
+  opacity:0;
+  transform: translateX(40px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events:none;
+  overflow-y:auto;
+}
+.slide.active {
+  opacity:1;
+  transform: translateX(0);
+  pointer-events:auto;
+}
+.slide.exit-left {
+  opacity:0;
+  transform: translateX(-40px);
+}
+
+/* ══════════════════════════════════════
+   NAVIGATION
+   ══════════════════════════════════════ */
+.nav-bar {
+  position:fixed;
+  bottom:0; left:0; right:0;
+  height:48px;
+  background: rgba(14,14,16,0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 0 32px;
+  z-index:100;
+  user-select:none;
+}
+.nav-counter {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  font-weight:600;
+  color: var(--text-3);
+  letter-spacing:0.05em;
+}
+.nav-progress {
+  flex:1;
+  max-width:320px;
+  height:3px;
+  background: var(--surface-3);
+  border-radius:2px;
+  margin: 0 24px;
+  overflow:hidden;
+}
+.nav-progress-fill {
+  height:100%;
+  background: var(--accent);
+  border-radius:2px;
+  transition: width 0.4s ease;
+}
+.nav-hint {
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  color: var(--text-4);
+  letter-spacing:0.04em;
+}
+.nav-arrows {
+  display:flex;
+  gap:8px;
+}
+.nav-btn {
+  width:32px; height:32px;
+  border-radius:6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:14px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.nav-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--text-3);
+}
+
+/* ══════════════════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════════════════ */
+.eyebrow {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color: var(--accent);
+  margin-bottom:16px;
+}
+.slide-title {
+  font-family:'Instrument Serif', serif;
+  font-size:44px;
+  font-weight:400;
+  line-height:1.15;
+  color: var(--text-1);
+  margin-bottom:12px;
+}
+.slide-title.large {
+  font-size:56px;
+}
+.slide-sub {
+  font-size:17px;
+  color: var(--text-2);
+  line-height:1.6;
+  max-width:680px;
+}
+.slide-sub strong { color: var(--text-1); }
+.narrative {
+  font-size:16px;
+  color: var(--text-2);
+  line-height:1.75;
+  max-width:720px;
+  margin-top:24px;
+}
+.narrative strong { color: var(--text-1); }
+
+/* ══════════════════════════════════════
+   KPI CARDS
+   ══════════════════════════════════════ */
+.kpi-row {
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:14px;
+  margin-top:32px;
+}
+.kpi {
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:22px 24px 20px;
+  position:relative;
+  overflow:hidden;
+}
+.kpi::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:3px;
+}
+.kpi.g::before { background: var(--green); }
+.kpi.y::before { background: var(--yellow); }
+.kpi.r::before { background: var(--red); }
+.kpi-label {
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color: var(--text-3);
+  margin-bottom:10px;
+}
+.kpi-num {
+  font-family:'JetBrains Mono', monospace;
+  font-size:32px;
+  font-weight:700;
+  line-height:1;
+  margin-bottom:6px;
+}
+.kpi.g .kpi-num { color: var(--green); }
+.kpi.y .kpi-num { color: var(--yellow); }
+.kpi.r .kpi-num { color: var(--red); }
+.kpi-detail {
+  font-size:11.5px;
+  color: var(--text-3);
+}
+.kpi-trend {
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  padding:3px 8px;
+  border-radius:4px;
+  margin-top:8px;
+}
+.kpi-trend.up { background: var(--green-dim); color: var(--green); }
+.kpi-trend.down { background: var(--red-dim); color: var(--red); }
+.kpi-trend.flat { background: var(--surface-3); color: var(--text-3); }
+
+/* ══════════════════════════════════════
+   CONSOLIDATED BIG NUMBERS
+   ══════════════════════════════════════ */
+.big-grid {
+  display:grid;
+  grid-template-columns: repeat(3,1fr);
+  gap:14px;
+  margin-top:32px;
+}
+.big-card {
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:28px;
+  text-align:center;
+}
+.big-card .big-num {
+  font-family:'JetBrains Mono', monospace;
+  font-size:42px;
+  font-weight:700;
+  line-height:1;
+  margin-bottom:8px;
+}
+.big-card .big-label {
+  font-size:13px;
+  color: var(--text-3);
+}
+.big-card .big-sub {
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  color: var(--text-3);
+  margin-top:8px;
+}
+.tier-row {
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:14px;
+  margin-top:14px;
+}
+.tier-card {
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.tier-card .tc-label {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color: var(--text-3);
+}
+.tier-card .tc-nums {
+  text-align:right;
+}
+.tier-card .tc-pct {
+  font-family:'JetBrains Mono', monospace;
+  font-size:24px;
+  font-weight:700;
+}
+.tier-card .tc-detail {
+  font-size:11px;
+  color: var(--text-3);
+}
+
+/* ══════════════════════════════════════
+   BAR CHARTS
+   ══════════════════════════════════════ */
+.bars-wrap {
+  margin-top:28px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.bar-item {}
+.bar-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:6px;
+}
+.bar-name {
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  font-weight:600;
+  color: var(--text-2);
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+.bar-val {
+  font-family:'JetBrains Mono', monospace;
+  font-size:14px;
+  font-weight:700;
+}
+.bar-track {
+  width:100%;
+  height:20px;
+  background: var(--surface-2);
+  border-radius:5px;
+  overflow:visible;
+  position:relative;
+}
+.bar-fill {
+  height:100%;
+  border-radius:5px;
+  position:relative;
+}
+.bar-fill.g { background: var(--green); }
+.bar-fill.y { background: var(--yellow); }
+.bar-fill.r { background: var(--red); }
+.bar-over-ext {
+  position:absolute;
+  top:0; bottom:0; right:0;
+  transform:translateX(100%);
+  background: var(--over);
+  opacity:0.3;
+  border-radius: 0 5px 5px 0;
+}
+.bar-foot {
+  display:flex;
+  justify-content:space-between;
+  margin-top:4px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  color: var(--text-4);
+}
+.bar-foot .over-tag { color: var(--over); font-weight:600; }
+
+/* ══════════════════════════════════════
+   TABLES
+   ══════════════════════════════════════ */
+.tbl-wrap {
+  margin-top:24px;
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:auto;
+}
+.tbl {
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+.tbl thead th {
+  font-family:'JetBrains Mono', monospace;
+  font-size:9.5px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color: var(--text-3);
+  padding:12px 12px;
+  text-align:center;
+  border-bottom:2px solid var(--border);
+  background: var(--surface-2);
+  position:sticky;
+  top:0;
+}
+.tbl thead th:first-child { text-align:left; padding-left:18px; }
+.tbl tbody td {
+  padding:10px 12px;
+  text-align:center;
+  border-bottom:1px solid var(--border-light);
+  font-family:'JetBrains Mono', monospace;
+  font-size:11.5px;
+  font-weight:500;
+  color: var(--text-2);
+}
+.tbl tbody td:first-child {
+  text-align:left;
+  padding-left:18px;
+  font-family:'DM Sans', sans-serif;
+  font-size:13px;
+  font-weight:600;
+  color: var(--text-1);
+}
+.tbl tbody tr:last-child td { border-bottom:none; }
+.tbl tbody tr:hover td { background: var(--surface-2); }
+.cg { color: var(--green) !important; background: var(--green-dim) !important; }
+.cy { color: var(--yellow) !important; background: var(--yellow-dim) !important; }
+.cr { color: var(--red) !important; background: var(--red-dim) !important; }
+.cn { color: var(--text-4) !important; font-style:italic; }
+.col-avg { font-weight:700 !important; border-left:2px solid var(--border) !important; }
+.col-over { border-left:2px solid rgba(167,139,250,0.2) !important; color: var(--over) !important; font-weight:600 !important; }
+.col-trend { font-family:'DM Sans',sans-serif !important; font-size:11px !important; font-weight:500 !important; color: var(--text-3) !important; white-space:nowrap; }
+.tbl tfoot td {
+  padding:12px 12px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:11.5px;
+  font-weight:700;
+  text-align:center;
+  background: var(--surface-2);
+  border-top:2px solid var(--border);
+  color: var(--text-1);
+}
+.tbl tfoot td:first-child { text-align:left; padding-left:18px; }
+
+/* ══════════════════════════════════════
+   OVERDELIVERY CARD
+   ══════════════════════════════════════ */
+.over-card {
+  background: var(--surface);
+  border:1px solid rgba(167,139,250,0.2);
+  border-radius:12px;
+  padding:28px;
+  margin-top:24px;
+}
+.over-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:20px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border-light);
+}
+.over-title { font-size:15px; font-weight:600; color: var(--over); }
+.over-total {
+  font-family:'JetBrains Mono', monospace;
+  font-size:28px;
+  font-weight:700;
+  color: var(--over);
+}
+.over-total span { font-size:12px; font-weight:500; color: var(--text-3); }
+.over-list { list-style:none; margin-bottom:20px; }
+.over-list li {
+  display:flex;
+  align-items:center;
+  padding:9px 0;
+  border-bottom:1px solid var(--border-light);
+  font-size:13px;
+}
+.over-list li:last-child { border-bottom:none; }
+.ol-rank {
+  font-family:'JetBrains Mono', monospace;
+  font-size:10px;
+  font-weight:700;
+  color: var(--text-4);
+  width:28px;
+  flex-shrink:0;
+}
+.ol-desc { flex:1; color: var(--text-2); }
+.ol-desc strong { color: var(--text-1); }
+.ol-val {
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+  font-weight:700;
+  color: var(--over);
+  width:60px;
+  text-align:right;
+  flex-shrink:0;
+}
+.over-note {
+  font-size:12px;
+  color: var(--text-2);
+  line-height:1.6;
+  padding:14px 16px;
+  background: var(--over-dim);
+  border-radius:8px;
+  border-left:3px solid var(--over);
+}
+.over-note strong { color: var(--over); }
+
+/* ══════════════════════════════════════
+   ALERT CARDS
+   ══════════════════════════════════════ */
+.alerts-grid {
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:12px;
+  margin-top:24px;
+}
+.alert {
+  padding:18px 20px;
+  border-radius:10px;
+  border-left:4px solid;
+  background: var(--surface);
+}
+.alert.crit { border-color: var(--red); }
+.alert.warn { border-color: var(--yellow); }
+.alert.info { border-color: var(--accent); }
+.alert-t {
+  font-size:12.5px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.alert.crit .alert-t { color: var(--red); }
+.alert.warn .alert-t { color: var(--yellow); }
+.alert.info .alert-t { color: var(--accent); }
+.alert-p { font-size:11.5px; color: var(--text-3); line-height:1.55; }
+
+/* ══════════════════════════════════════
+   EXEC SUMMARY
+   ══════════════════════════════════════ */
+.exec-box {
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:32px;
+  margin-top:24px;
+}
+.exec-box p {
+  font-size:15px;
+  color: var(--text-2);
+  line-height:1.8;
+  margin-bottom:14px;
+}
+.exec-box p:last-child { margin-bottom:0; }
+.exec-box strong { color: var(--text-1); }
+
+/* ══════════════════════════════════════
+   COVER & END SLIDES
+   ══════════════════════════════════════ */
+.cover-center {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  height:100%;
+}
+.cover-center .slide-title { margin-bottom:16px; }
+.cover-center .slide-sub { max-width:560px; text-align:center; }
+.cover-divider {
+  width:60px;
+  height:2px;
+  background: var(--accent);
+  margin:20px 0;
+  border-radius:1px;
+}
+.cover-tag {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color: var(--text-4);
+  margin-top:8px;
+}
+
+/* ══════════════════════════════════════
+   METHODOLOGY PILLS
+   ══════════════════════════════════════ */
+.method-grid {
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:16px;
+  margin-top:28px;
+}
+.method-card {
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px;
+}
+.method-card .mc-icon {
+  font-size:24px;
+  margin-bottom:12px;
+}
+.method-card .mc-title {
+  font-family:'JetBrains Mono', monospace;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color: var(--text-1);
+  margin-bottom:8px;
+}
+.method-card .mc-text {
+  font-size:13px;
+  color: var(--text-3);
+  line-height:1.6;
+}
+
+/* ══════════════════════════════════════
+   UTILITY
+   ══════════════════════════════════════ */
+.mt-12 { margin-top:12px; }
+.mt-24 { margin-top:24px; }
+.text-accent { color: var(--accent); }
+.text-green { color: var(--green); }
+.text-yellow { color: var(--yellow); }
+.text-red { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- ═══════════════════════════════════════
+     SLIDE 1 — CAPA
+     ═══════════════════════════════════════ -->
+<div class="slide active" data-slide="1">
+  <div class="cover-center">
+    <div class="eyebrow">H2bet · Patrocínios</div>
+    <div class="slide-title large">Performance de Entregas</div>
+    <div class="cover-divider"></div>
+    <div class="slide-sub">Análise de execução contratual do ciclo <strong>Dezembro/2025 — Março/2026</strong></div>
+    <div class="cover-tag">21 assets · 1.307 entregas contratadas · Meta: 100%</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 2 — CONTEXTO
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="2">
+  <div class="eyebrow">Contexto</div>
+  <div class="slide-title">O que estamos medindo — e por quê</div>
+  <div class="narrative">
+    O H2bet manteve <strong>21 contratos de patrocínio ativos</strong> distribuídos em dois tiers. Cada contrato define entregas mensais específicas — posts, stories, lives, vídeos, ações offline — que devem ser cumpridas integralmente.
+  </div>
+  <div class="narrative">
+    A meta da área é <strong>100% de execução contratual</strong>: todo item contratado deve ser entregue dentro do mês. Este material analisa os quatro meses do ciclo Dez/25–Mar/26 para avaliar a performance geral da área, bem como a tendência e onde intervir para os próximos ciclos.
+  </div>
+  <div class="narrative">
+    <strong>Tier 1</strong> (4 assets): Atlético Mineiro, LOUD [LOUDgg, Brabox, Renato Vicente, GabePeixe], M12 e Coringa.<br>
+    <strong>Tier 2</strong> (14 assets): Bela Barroso, Cenas Lamentáveis, Mari Spinelli, Robgol, PokerCast, Pedro Souza, Cole Markin, entre outros.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 3 — METODOLOGIA
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="3">
+  <div class="eyebrow">Metodologia</div>
+  <div class="slide-title">Dual-track: execução contratual + overdelivery</div>
+  <div class="slide-sub">Este material usa duas lentes separadas para ler a performance da carteira.</div>
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="mc-icon">◼</div>
+      <div class="mc-title">Execução Contratual</div>
+      <div class="mc-text">KPI principal. Cada linha de entrega é <strong>cappada no valor contratado</strong> — se o contrato pede 24 e o parceiro entregou 154, conta como 24. Isso impede que overdelivery de um item mascare underdelivery de outro. Responde à pergunta: <strong>"O contrato está sendo cumprido?"</strong></div>
+    </div>
+    <div class="method-card">
+      <div class="mc-icon" style="color:var(--over)">◻</div>
+      <div class="mc-title">Overdelivery</div>
+      <div class="mc-text">Camada secundária. Mede entregas <strong>além do contratado</strong>, exibidas separadamente. Não infla a execução, mas mostra valor adicional gerado. Responde à pergunta: <strong>"Quanto valor extra o parceiro está gerando?"</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 4 — CONSOLIDADO DO CICLO
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="4">
+  <div class="eyebrow">Visão Consolidada</div>
+  <div class="slide-title">Ciclo Dez/25 – Mar/26: o panorama geral</div>
+  <div class="big-grid">
+    <div class="big-card">
+      <div class="big-num text-red">71.1%</div>
+      <div class="big-label">Execução contratual do ciclo</div>
+      <div class="big-sub">929 de 1.307 entregas</div>
+    </div>
+    <div class="big-card">
+      <div class="big-num" style="color:var(--over)">+552</div>
+      <div class="big-label">Overdeliveries no ciclo</div>
+      <div class="big-sub">Valor adicional gerado</div>
+    </div>
+    <div class="big-card">
+      <div class="big-num" style="color:var(--text-2)">378</div>
+      <div class="big-label">Entregas pendentes acumuladas</div>
+      <div class="big-sub">28.9% do contratado</div>
+    </div>
+  </div>
+  <div class="tier-row">
+    <div class="tier-card">
+      <div>
+        <div class="tc-label">Tier 1 · 4 assets</div>
+      </div>
+      <div class="tc-nums">
+        <div class="tc-pct text-red">74.0%</div>
+        <div class="tc-detail">643 de 869 · +476 over</div>
+      </div>
+    </div>
+    <div class="tier-card">
+      <div>
+        <div class="tc-label">Tier 2 · 14 assets</div>
+      </div>
+      <div class="tc-nums">
+        <div class="tc-pct text-red">65.3%</div>
+        <div class="tc-detail">286 de 438 · +75 over</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 5 — KPIs MENSAIS
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="5">
+  <div class="eyebrow">Execução Mensal</div>
+  <div class="slide-title">Mês a mês: a trajetória do ciclo</div>
+  <div class="slide-sub">T1 + T2 combinados — cada item cappado no seu valor contratual.</div>
+  <div class="kpi-row">
+    <div class="kpi r">
+      <div class="kpi-label">Dez / 25</div>
+      <div class="kpi-num">63.0%</div>
+      <div class="kpi-detail">232 / 368 efetivos</div>
+      <div class="kpi-trend flat">— Início do ciclo</div>
+    </div>
+    <div class="kpi r">
+      <div class="kpi-label">Jan / 26</div>
+      <div class="kpi-num">72.4%</div>
+      <div class="kpi-detail">228 / 315 efetivos</div>
+      <div class="kpi-trend up">↑ +9.4pp</div>
+    </div>
+    <div class="kpi y">
+      <div class="kpi-label">Fev / 26</div>
+      <div class="kpi-num">83.8%</div>
+      <div class="kpi-detail">259 / 309 efetivos</div>
+      <div class="kpi-trend up">↑ +11.4pp</div>
+    </div>
+    <div class="kpi r">
+      <div class="kpi-label">Mar / 26</div>
+      <div class="kpi-num">66.7%</div>
+      <div class="kpi-detail">210 / 315 efetivos</div>
+      <div class="kpi-trend down">↓ −17.1pp</div>
+    </div>
+  </div>
+  <div class="narrative mt-24" style="font-size:13px;">
+    Dezembro ficou significativamente abaixo da meta. Fevereiro foi o melhor mês do ciclo, demonstrando que o patamar de ~84% é alcançável. Março, ainda em aberto, acompanha patamares próximos aos de Dezembro.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 6 — EVOLUÇÃO T1
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="6">
+  <div class="eyebrow">Tier 1 · Evolução</div>
+  <div class="slide-title">Performance mensal — assets principais</div>
+  <div class="bars-wrap">
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Dezembro / 25</span>
+        <span class="bar-val text-red">65.7%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill r" style="width:65.7%"><div class="bar-over-ext" style="width:17.2%"></div></div></div>
+      <div class="bar-foot"><span>142 / 216 efetivos</span><span class="over-tag">+22 over</span></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Janeiro / 26</span>
+        <span class="bar-val text-red">74.7%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill r" style="width:74.7%"><div class="bar-over-ext" style="width:63.3%"></div></div></div>
+      <div class="bar-foot"><span>165 / 221 efetivos</span><span class="over-tag">+140 over</span></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Fevereiro / 26</span>
+        <span class="bar-val text-yellow">86.4%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill y" style="width:86.4%"><div class="bar-over-ext" style="width:91.4%"></div></div></div>
+      <div class="bar-foot"><span>191 / 221 efetivos</span><span class="over-tag">+202 over</span></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Março / 26</span>
+        <span class="bar-val text-red">68.7%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill r" style="width:68.7%"><div class="bar-over-ext" style="width:53.1%"></div></div></div>
+      <div class="bar-foot"><span>145 / 211 efetivos</span><span class="over-tag">+112 over</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 7 — EVOLUÇÃO T2
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="7">
+  <div class="eyebrow">Tier 2 · Evolução</div>
+  <div class="slide-title">Performance mensal — creators</div>
+  <div class="bars-wrap">
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Dezembro / 25</span>
+        <span class="bar-val text-red">59.2%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill r" style="width:59.2%"><div class="bar-over-ext" style="width:15.6%"></div></div></div>
+      <div class="bar-foot"><span>90 / 152 efetivos</span><span class="over-tag">+14 over</span></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Janeiro / 26</span>
+        <span class="bar-val text-red">67.0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill r" style="width:67.0%"><div class="bar-over-ext" style="width:36.2%"></div></div></div>
+      <div class="bar-foot"><span>63 / 94 efetivos</span><span class="over-tag">+34 over</span></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Fevereiro / 26</span>
+        <span class="bar-val text-yellow">77.3%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill y" style="width:77.3%"><div class="bar-over-ext" style="width:20.5%"></div></div></div>
+      <div class="bar-foot"><span>68 / 88 efetivos</span><span class="over-tag">+18 over</span></div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-head">
+        <span class="bar-name">Março / 26</span>
+        <span class="bar-val text-red">62.5%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill r" style="width:62.5%"><div class="bar-over-ext" style="width:8.7%"></div></div></div>
+      <div class="bar-foot"><span>65 / 104 efetivos</span><span class="over-tag">+9 over</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 8 — TABELA T1
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="8" style="justify-content:flex-start; padding-top:48px;">
+  <div class="eyebrow">Tier 1 · Detalhe</div>
+  <div class="slide-title" style="font-size:32px;">Performance por asset — Tier 1</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:160px">Asset</th><th>Dez/25</th><th>Jan/26</th><th>Fev/26</th><th>Mar/26</th><th class="col-avg">Média</th><th class="col-over">Over</th><th style="width:120px">Tendência</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Atlético (Galo)</td><td class="cy">78.6%</td><td class="cy">95.7%</td><td class="cg">100%</td><td class="cy">82.6%</td><td class="col-avg cy">89.2%</td><td class="col-over">+390</td><td class="col-trend">→ Estável alto</td></tr>
+        <tr><td>LOUD · Brabox</td><td class="cr">71.4%</td><td class="cy">91.4%</td><td class="cy">88.6%</td><td class="cy">82.9%</td><td class="col-avg cy">83.6%</td><td class="col-over">+51</td><td class="col-trend">→ Estável</td></tr>
+        <tr><td>LOUD (Core)</td><td class="cr">71.4%</td><td class="cg">100%</td><td class="cg">100%</td><td class="cg">100%</td><td class="col-avg cy">92.8%</td><td class="col-over">+13</td><td class="col-trend">↑ Em alta</td></tr>
+        <tr><td>M12</td><td class="cy">75.0%</td><td class="cy">81.2%</td><td class="cr">68.8%</td><td class="cr">71.4%</td><td class="col-avg cy">74.1%</td><td class="col-over">+17</td><td class="col-trend">↓ Queda</td></tr>
+        <tr><td>Coringa</td><td class="cy">78.4%</td><td class="cy">80.4%</td><td class="cy">88.2%</td><td class="cr">58.8%</td><td class="col-avg cy">76.5%</td><td class="col-over">+2</td><td class="col-trend">↓ Tendência de queda</td></tr>
+        <tr><td>LOUD · Renato V.</td><td class="cr">17.1%</td><td class="cr">22.9%</td><td class="cy">80.0%</td><td class="cr">71.4%</td><td class="col-avg cr">47.9%</td><td class="col-over">+3</td><td class="col-trend">↑ Instável</td></tr>
+        <tr><td>LOUD · GabePeixe</td><td class="cr">70.0%</td><td class="cr">63.3%</td><td class="cy">73.3%</td><td class="cr">36.7%</td><td class="col-avg cr">60.8%</td><td class="col-over">—</td><td class="col-trend">↓ Queda em Mar</td></tr>
+      </tbody>
+      <tfoot><tr>
+        <td>Total T1</td><td>65.7%</td><td>74.7%</td><td>86.4%</td><td>68.7%</td><td class="col-avg">74.0%</td><td class="col-over">+476</td><td></td>
+      </tr></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 9 — TABELA T2
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="9" style="justify-content:flex-start; padding-top:48px;">
+  <div class="eyebrow">Tier 2 · Detalhe</div>
+  <div class="slide-title" style="font-size:32px;">Performance por asset — Tier 2</div>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead><tr>
+        <th style="width:170px">Asset</th><th>Dez/25</th><th>Jan/26</th><th>Fev/26</th><th>Mar/26</th><th class="col-avg">Média</th><th class="col-over">Over</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Lelo</td><td class="cg">100%</td><td class="cn">—</td><td class="cn">—</td><td class="cn">—</td><td class="col-avg cg">100%</td><td class="col-over">—</td></tr>
+        <tr><td>Bela Barroso</td><td class="cr">58.3%</td><td class="cg">100%</td><td class="cg">100%</td><td class="cg">100%</td><td class="col-avg cy">89.6%</td><td class="col-over">+35</td></tr>
+        <tr><td>Robgol</td><td class="cr">66.7%</td><td class="cy">83.3%</td><td class="cg">100%</td><td class="cr">50.0%</td><td class="col-avg cy">75.0%</td><td class="col-over">+2</td></tr>
+        <tr><td>2 na Linha 1 no Gol</td><td class="cr">27.3%</td><td class="cy">72.7%</td><td class="cr">58.3%</td><td class="cr">58.3%</td><td class="col-avg cr">54.2%</td><td class="col-over">+9</td></tr>
+        <tr><td>Voiduda</td><td class="cr">60.0%</td><td class="cg">100%</td><td class="cg">100%</td><td class="cg">100%</td><td class="col-avg cy">90.0%</td><td class="col-over">+9</td></tr>
+        <tr><td>Cenas Lamentáveis</td><td class="cr">66.7%</td><td class="cr">33.3%</td><td class="cr">66.7%</td><td class="cr">66.7%</td><td class="col-avg cr">58.3%</td><td class="col-over">—</td></tr>
+        <tr><td>PokerCast</td><td class="cy">81.2%</td><td class="cy">81.2%</td><td class="cy">75.0%</td><td class="cr">56.2%</td><td class="col-avg cy">73.4%</td><td class="col-over">+17</td></tr>
+        <tr><td>Pedro Souza</td><td class="cr">33.3%</td><td class="cr">66.7%</td><td class="cg">91.7%</td><td class="cr">50.0%</td><td class="col-avg cr">60.4%</td><td class="col-over">—</td></tr>
+        <tr><td>Cole Markin</td><td class="cn">—</td><td class="cn">—</td><td class="cn">—</td><td class="cr">62.5%</td><td class="col-avg cr">62.5%</td><td class="col-over">—</td></tr>
+        <tr><td>Canal Contra o Vento</td><td class="cr">43.8%</td><td class="cn">—</td><td class="cn">—</td><td class="cn">—</td><td class="col-avg cr">50.0%</td><td class="col-over">—</td></tr>
+        <tr><td>Portal do Galo</td><td class="cg">100%</td><td class="cn">—</td><td class="cn">—</td><td class="cn">—</td><td class="col-avg cr">50.0%</td><td class="col-over">—</td></tr>
+        <tr><td>Marreco</td><td class="cr">33.3%</td><td class="cn">—</td><td class="cn">—</td><td class="cn">—</td><td class="col-avg cr">33.3%</td><td class="col-over">—</td></tr>
+        <tr><td>Jornadas Famosas</td><td class="cr">25.0%</td><td class="cn">—</td><td class="cn">—</td><td class="cn">—</td><td class="col-avg cr">25.0%</td><td class="col-over">—</td></tr>
+        <tr><td>Mariana Spinelli</td><td class="cr">42.9%</td><td class="cr">21.4%</td><td class="cr">14.3%</td><td class="cr">28.6%</td><td class="col-avg cr">26.8%</td><td class="col-over">—</td></tr>
+      </tbody>
+      <tfoot><tr>
+        <td>Total T2</td><td>59.2%</td><td>67.0%</td><td>77.3%</td><td>62.5%</td><td class="col-avg">65.3%</td><td class="col-over">+75</td>
+      </tr></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 10 — OVERDELIVERY
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="10">
+  <div class="eyebrow">Overdelivery</div>
+  <div class="slide-title">Valor gerado além do contrato</div>
+  <div class="over-card">
+    <div class="over-header">
+      <div class="over-title">Acumulado no ciclo Dez–Mar</div>
+      <div class="over-total">+552 <span>entregas extras</span></div>
+    </div>
+    <ul class="over-list">
+      <li><span class="ol-rank">01</span><span class="ol-desc"><strong>Galo</strong> · Posts Redes Sociais (Meta, X, TikTok)</span><span class="ol-val">+388</span></li>
+      <li><span class="ol-rank">02</span><span class="ol-desc"><strong>Bela Barroso</strong> · Feed + Stories</span><span class="ol-val">+35</span></li>
+      <li><span class="ol-rank">03</span><span class="ol-desc"><strong>Brabox</strong> · Live Cassino (Twitch/Loco)</span><span class="ol-val">+38</span></li>
+      <li><span class="ol-rank">04</span><span class="ol-desc"><strong>PokerCast</strong> · Stories</span><span class="ol-val">+17</span></li>
+      <li><span class="ol-rank">05</span><span class="ol-desc"><strong>LOUD (Core)</strong> · Stories</span><span class="ol-val">+13</span></li>
+    </ul>
+    <div class="over-note">
+      <strong>Concentração:</strong> 70.4% de todo o overdelivery (388/552) vem de uma única linha — Posts Redes Sociais do Galo. Volume predominantemente orgânico. Definição sobre tratamento orgânico vs. intencional pendente.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 11 — ALERTAS
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="11" style="justify-content:flex-start; padding-top:52px;">
+  <div class="eyebrow">Alertas</div>
+  <div class="slide-title" style="font-size:32px;">Riscos que impedem o 100%</div>
+  <div class="alerts-grid">
+    <div class="alert crit">
+      <div class="alert-t">GabePeixe — Média 60.8%</div>
+      <div class="alert-p">Melhorou significativamente após revisão (era 33.7%), mas regrediu para 36.7% em Março. Zero overdelivery. Requer acompanhamento próximo.</div>
+    </div>
+    <div class="alert crit">
+      <div class="alert-t">Renato Vicente — Média 47.9%</div>
+      <div class="alert-p">Saiu de 17% para 80% em Fev, subiu para 71% em Mar. Recuperação pontual, não estrutural.</div>
+    </div>
+    <div class="alert warn">
+      <div class="alert-t">Coringa — Tendência de queda</div>
+      <div class="alert-p">Média de 76.5%, mas Março é o pior mês (58.8%). Queda de 29.4pp vs Fev. Tendência negativa clara.</div>
+    </div>
+    <div class="alert warn">
+      <div class="alert-t">Mariana Spinelli — Média 26.8%</div>
+      <div class="alert-p">Oscila entre 14-43%, nunca superou 50%. Pior asset do T2 em consistência. Avaliar manutenção ou redefinição de escopo.</div>
+    </div>
+    <div class="alert warn">
+      <div class="alert-t">T2 Março — Ainda em 62.5%</div>
+      <div class="alert-p">Mês em aberto. Pedro Souza (50%), Robgol (50%) e GabePeixe (36.7%) puxam o indicador para baixo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 12 — CONCLUSÃO
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="12">
+  <div class="eyebrow">Conclusão</div>
+  <div class="slide-title">Diagnóstico e recomendações</div>
+  <div class="exec-box">
+    <p>O ciclo encerra com <strong>71.1% de execução contratual</strong>, distante da meta de 100%. Fevereiro (83.8%) provou que o patamar é atingível, mas a regressão de Março confirmou que os ganhos não foram estruturais.</p>
+    <p><strong>GabePeixe (60.8%) e Renato Vicente (47.9%)</strong> permanecem como os assets com maior gap em relação à meta. <strong>Coringa</strong> está em tendência de queda. No T2, <strong>Mariana Spinelli</strong> sustenta 14.3% há três meses.</p>
+    <p>Em contrapartida, a carteira gerou <strong>+552 overdeliveries</strong>, com destaque para Galo, Bela Barroso e Brabox — parceiros que geram valor além do contrato de forma consistente.</p>
+    <p><strong>Recomendações:</strong> (1) Ação urgente para GabePeixe e Renato Vicente; (2) Plano de ação preventivo para Coringa; (3) Avaliação de Mariana Spinelli no T2; (4) Formalização do tratamento de overdelivery orgânico vs. intencional.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SLIDE 13 — ENCERRAMENTO
+     ═══════════════════════════════════════ -->
+<div class="slide" data-slide="13">
+  <div class="cover-center">
+    <div class="eyebrow">Próximos passos</div>
+    <div class="slide-title large">O que muda a partir de agora</div>
+    <div class="cover-divider"></div>
+    <div class="slide-sub" style="text-align:left; max-width:600px;">
+      <strong style="color:var(--red)">1.</strong> Ação urgente GabePeixe + Renato Vicente — plano de recuperação ou renegociação<br><br>
+      <strong style="color:var(--yellow)">2.</strong> Plano preventivo Coringa — antes que consolide tendência crítica<br><br>
+      <strong style="color:var(--yellow)">3.</strong> Revisão Mariana Spinelli — manutenção vs. redefinição de escopo<br><br>
+      <strong style="color:var(--accent)">4.</strong> Definição metodológica — overdelivery orgânico vs. intencional
+    </div>
+    <div class="cover-tag" style="margin-top:32px;">H2bet · Patrocínios · Março/2026</div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- ═══════════════════════════════════════
+     NAVIGATION BAR
+     ═══════════════════════════════════════ -->
+<div class="nav-bar">
+  <div class="nav-counter" id="counter">1 / 13</div>
+  <div class="nav-progress"><div class="nav-progress-fill" id="progress" style="width:7.69%"></div></div>
+  <div class="nav-arrows">
+    <div class="nav-btn" onclick="prev()" title="Anterior">←</div>
+    <div class="nav-btn" onclick="next()" title="Próximo">→</div>
+  </div>
+  <div class="nav-hint">Espaço / → avançar · ← voltar</div>
+</div>
+
+<script>
+const TOTAL = 13;
+let current = 1;
+
+function go(n) {
+  if (n < 1 || n > TOTAL || n === current) return;
+  const dir = n > current ? 1 : -1;
+  const oldSlide = document.querySelector(`.slide[data-slide="${current}"]`);
+  const newSlide = document.querySelector(`.slide[data-slide="${n}"]`);
+
+  // Disable transitions briefly to position the new slide off-screen
+  newSlide.style.transition = 'none';
+  newSlide.style.transform = dir > 0 ? 'translateX(40px)' : 'translateX(-40px)';
+  newSlide.style.opacity = '0';
+  newSlide.classList.add('active');
+
+  // Force reflow so the position takes effect
+  newSlide.offsetHeight;
+
+  // Re-enable transitions and animate both slides
+  newSlide.style.transition = '';
+  newSlide.style.transform = 'translateX(0)';
+  newSlide.style.opacity = '1';
+
+  oldSlide.style.transform = dir > 0 ? 'translateX(-40px)' : 'translateX(40px)';
+  oldSlide.style.opacity = '0';
+
+  setTimeout(() => {
+    oldSlide.classList.remove('active');
+    oldSlide.style.transform = '';
+    oldSlide.style.opacity = '';
+  }, 480);
+
+  current = n;
+  document.getElementById('counter').textContent = `${current} / ${TOTAL}`;
+  document.getElementById('progress').style.width = `${(current / TOTAL) * 100}%`;
+}
+
+function next() { go(current + 1); }
+function prev() { go(current - 1); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+  if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+  if (e.key === 'Home') { e.preventDefault(); go(1); }
+  if (e.key === 'End') { e.preventDefault(); go(TOTAL); }
+});
+
+// Touch support
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); }
+});
+</script>
+
+</body>
+</html>
